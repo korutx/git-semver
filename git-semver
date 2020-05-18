@@ -176,7 +176,7 @@ version-get() {
         local version_main=$(
             echo "$tags" |
                 grep "^${VERSION_PREFIX}[0-9]\+\.[0-9]\+\.[0-9]\+" |
-                gawk -F '[-+]' '{ print $1 }' |
+                awk -F '[-+]' '{ print $1 }' |
                 uniq |
                 sort -t '.' -k 1,1n -k 2,2n -k 3,3n |
                 tail -n 1
@@ -184,18 +184,18 @@ version-get() {
         local version_pre_releases=$(
             echo "$tags" |
                 grep "^${version_main//./\\.}" |
-                gawk -F '-' '{ print $2 }'
+                awk -F '-' '{ print $2 }'
         )
         local pre_release_id_count=$(
             echo "$version_pre_releases" | tr -d -c ".\n" |
-                gawk 'BEGIN{ max = 0 }
+                awk 'BEGIN{ max = 0 }
                 { if (max < length) { max = length } }
                 END{ if ( max == 0 ) { print 0 } else { print max + 1 } }'
         )
         local sort_args='-t.'
         for ((pre_release_id_index=1; pre_release_id_index<=$pre_release_id_count; pre_release_id_index++))
         do
-            chars="$(echo "$version_pre_releases" | gawk -F '.' '{ print $'$pre_release_id_index' }' | tr -d $'\n')"
+            chars="$(echo "$version_pre_releases" | awk -F '.' '{ print $'$pre_release_id_index' }' | tr -d $'\n')"
             if [[ "$chars" =~ ^[0-9]*$ ]]
             then
                 sort_key_type=n
@@ -206,7 +206,7 @@ version-get() {
         done
         echo "$version_pre_releases" |
             eval sort $sort_args |
-            gawk '{ if (length == 0) { print "'$version_main'" } else { print "'$version_main'-"$1 } }' |
+            awk '{ if (length == 0) { print "'$version_main'" } else { print "'$version_main'-"$1 } }' |
             tail -n 1
     )
     # Get the version with the build number
